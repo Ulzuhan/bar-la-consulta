@@ -238,6 +238,8 @@ textarea:focus { outline: 2px solid var(--boton); outline-offset: 0; border-colo
 .pie a { color: var(--tinta-suave); }
 .pie button { background: none; border: none; color: var(--tinta-suave); text-decoration: underline; text-underline-offset: 2px; padding: 0; font-size: 13.5px; }
 .carga { padding: 60px 20px; text-align: center; color: var(--tinta-suave); }
+.sin-guardar { background: var(--aviso-suave); color: var(--aviso); border-bottom: 1px solid var(--borde); }
+.sin-guardar-in { max-width: var(--ancho); margin: 0 auto; padding: 10px 24px; font-weight: 600; font-size: 15px; }
 
 @media (max-width: 760px) {
   .cuerpo { grid-template-columns: minmax(0, 1fr); }
@@ -253,6 +255,10 @@ textarea:focus { outline: 2px solid var(--boton); outline-offset: 0; border-colo
   .pestanas-in { padding: 0 8px; }
   .rotulo { font-size: 22px; }
   .lema { font-size: 13px; }
+  .acciones { width: 100%; flex-wrap: wrap; gap: 6px; }
+  .estado-bd { display: none; }
+  .btn-claro { white-space: nowrap; font-size: 13px; padding: 4px 9px; }
+  .sin-guardar-in { padding: 10px 16px; font-size: 14px; }
   .bloque > h1 { font-size: 25px; }
   .tarjeta { padding: 12px; }
   .tarjeta.resuelto { padding-left: 9px; }
@@ -271,11 +277,15 @@ textarea:focus { outline: 2px solid var(--boton); outline-offset: 0; border-colo
   </div>
   <div class="acciones">
     <span class="estado-bd" id="estado-bd">Cargando la base de datos…</span>
+    <button class="btn-claro" id="btn-descargar" type="button" title="Baja un archivo con todas tus consultas, para guardarlas o seguir en otro ordenador">Descargar mi trabajo</button>
+    <button class="btn-claro" id="btn-cargar" type="button" title="Recupera tus consultas desde un archivo que bajaste antes">Cargar mi trabajo</button>
+    <input type="file" id="archivo-trabajo" accept=".sql,.txt,text/plain" hidden>
     <button class="btn-claro" id="btn-restaurar" type="button" title="Vuelve a cargar los datos originales del bar">Restaurar la base de datos</button>
   </div>
  </div>
 </header>
 <nav class="pestanas" aria-label="Bloques de la clase"><div class="pestanas-in" id="pestanas" role="tablist"></div></nav>
+<div class="sin-guardar" id="sin-guardar" role="alert" hidden><div class="sin-guardar-in">Este navegador no guarda lo que escribes: si recargas o cierras la página, lo perderás. Antes de salir, pulsa "Descargar mi trabajo". Para no tener este problema, abre la página en Chrome y sin modo incógnito.</div></div>
 <div class="cuerpo">
   <aside class="panel" id="panel" aria-label="Tablas de la base de datos"></aside>
   <main id="contenido"><div class="carga">Cargando…</div></main>
@@ -302,6 +312,15 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
   // ---------------------------------------------------------------- utilidades
   function guardar(clave, valor) { try { localStorage.setItem(PREFIJO + clave, valor); } catch (e) {} }
   function leer(clave) { try { return localStorage.getItem(PREFIJO + clave); } catch (e) { return null; } }
+  function quitar(clave) { try { localStorage.removeItem(PREFIJO + clave); } catch (e) {} }
+  var puedeGuardar = (function () {
+    try {
+      localStorage.setItem(PREFIJO + "prueba", "1");
+      localStorage.removeItem(PREFIJO + "prueba");
+      return true;
+    } catch (e) { return false; }
+  })();
+  var marcadores = {};
   function borrarTodo() {
     try {
       var claves = [];
@@ -670,6 +689,7 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
       }));
       if (leer("ok:" + ej.id) === "1") marcar(true);
       tarjetasEjercicio[ej.id] = tarjeta;
+      marcadores[ej.id] = { marcar: marcar, ej: ej, bloque: bloque };
       sec.appendChild(tarjeta);
     });
     return sec;
@@ -791,6 +811,105 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
     marca.classList.add("completo");
   }
 
+  // ---------------------------------------------------------------- descargar y cargar el trabajo
+  // El archivo es SQL normal: cada consulta va detrás de una línea "-- [2.4] enunciado".
+  function piezas() {
+    var lista = [];
+    DATOS.bloques.concat([DATOS.mision, DATOS.extra]).forEach(function (b) {
+      (b.ejemplos || []).forEach(function (e) { lista.push({ id: e.id, bloque: b.pestana, texto: "Ejemplo" }); });
+      (b.ejercicios || []).forEach(function (e) { lista.push({ id: e.id, bloque: b.pestana, texto: e.enunciado, ejercicio: true }); });
+      (b.pasos || []).forEach(function (e) { lista.push({ id: e.id, bloque: b.pestana, texto: e.titulo }); });
+    });
+    return lista;
+  }
+  function recuadro(id) { return document.querySelector('textarea[aria-label="Consulta SQL ' + id + '"]'); }
+  function hayAlgoEscrito() {
+    return Array.prototype.some.call(document.querySelectorAll("main textarea"), function (a) { return a.value.trim() !== ""; });
+  }
+  function avisoEstado(texto) {
+    var estado = document.getElementById("estado-bd");
+    estado.textContent = texto;
+    setTimeout(function () { estado.textContent = "Base de datos lista"; }, 3500);
+  }
+
+  function descargarTrabajo() {
+    var ahora = new Date();
+    var lineas = [
+      "-- Bar La Consulta: mis consultas",
+      "-- Descargado el " + ahora.toLocaleDateString("es-ES") + " a las " + ahora.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
+      "-- Para recuperarlas, abre " + location.origin + location.pathname + " y pulsa \"Cargar mi trabajo\"."
+    ];
+    if (leer("caso") === "cerrado") lineas.push("-- Caso cerrado: sí");
+    var bloque = null;
+    var n = 0;
+    piezas().forEach(function (p) {
+      var area = recuadro(p.id);
+      var texto = area ? area.value.trim() : "";
+      if (!texto) return;
+      if (p.bloque !== bloque) { lineas.push("", "-- ## " + p.bloque); bloque = p.bloque; }
+      lineas.push("", "-- [" + p.id + "] " + p.texto.replace(/\s+/g, " "), texto);
+      n++;
+    });
+    if (!n) { alert("Todavía no has escrito ninguna consulta."); return; }
+    var url = URL.createObjectURL(new Blob([lineas.join("\n") + "\n"], { type: "text/plain;charset=utf-8" }));
+    var enlace = el("a", { href: url, download: "mis_consultas_bar.sql" });
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    avisoEstado("Trabajo descargado (" + plural(n, "consulta", "consultas") + ")");
+  }
+
+  function leerArchivo(texto) {
+    var partes = {};
+    var actual = null;
+    var caso = false;
+    texto.replace(/\r\n?/g, "\n").split("\n").forEach(function (linea) {
+      var m = linea.match(/^--\s*\[([^\]]+)\]/);
+      if (m) { actual = m[1].trim(); partes[actual] = []; return; }
+      if (/^--\s*##/.test(linea)) { actual = null; return; }
+      if (/^--\s*Caso cerrado: sí/.test(linea)) { caso = true; return; }
+      if (actual) partes[actual].push(linea);
+    });
+    return { partes: partes, caso: caso };
+  }
+
+  function cargarTrabajo(texto) {
+    var leido = leerArchivo(texto);
+    var conocidas = {};
+    piezas().forEach(function (p) { conocidas[p.id] = p; });
+    var ids = Object.keys(leido.partes).filter(function (id) { return conocidas[id] && recuadro(id); });
+    if (!ids.length) {
+      alert("Ese archivo no tiene consultas de esta página. Tiene que ser el que bajaste con Descargar mi trabajo.");
+      return;
+    }
+    if (!confirm("Se van a cargar " + plural(ids.length, "consulta", "consultas") + " del archivo. Si en esos ejercicios ya tienes algo escrito, se cambiará por lo del archivo. ¿Seguir?")) return;
+    var resueltos = 0;
+    ids.forEach(function (id) {
+      var sql = leido.partes[id].join("\n").trim();
+      var area = recuadro(id);
+      area.value = sql;
+      area.dispatchEvent(new Event("input"));
+      var m = marcadores[id];
+      if (!m) return;
+      var ok = false;
+      if (sql) {
+        abrirBD();   // cada consulta, contra los datos originales
+        try {
+          var res = ejecutar(sql).res;
+          ok = (m.ej.abierta ? comprobarClaves(m.ej.esperado, res) : comprobar(m.ej.esperado, res)).ok;
+        } catch (e) { ok = false; }
+      }
+      if (ok) { guardar("ok:" + id, "1"); resueltos++; } else { quitar("ok:" + id); }
+      m.marcar(ok);
+      actualizarProgreso(m.bloque);
+    });
+    abrirBD();
+    pintarPanel();
+    if (leido.caso) { guardar("caso", "cerrado"); marcarCaso(); }
+    alert("Listo: " + plural(ids.length, "consulta cargada", "consultas cargadas") + ", " + plural(resueltos, "ejercicio resuelto", "ejercicios resueltos") + ".");
+  }
+
   // ---------------------------------------------------------------- arranque
   function mostrar(id) {
     Object.keys(pestanas).forEach(function (k) {
@@ -820,7 +939,7 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
     main.appendChild(el("footer", { clase: "pie" }, [
       el("a", { href: "bar.db", download: "bar.db", texto: "Descargar la base de datos (bar.db)" }),
       el("button", { type: "button", texto: "Borrar mis consultas y mi progreso", onclick: function () {
-        if (confirm("¿Seguro? Se borran todas tus consultas y los ejercicios resueltos de este navegador.")) { borrarTodo(); location.reload(); }
+        if (confirm("¿Seguro? Se borran todas tus consultas y los ejercicios resueltos de este navegador. Si quieres conservarlas, antes pulsa Descargar mi trabajo.")) { borrarTodo(); location.reload(); }
       } })
     ]));
     marcarCaso();
@@ -848,13 +967,29 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
     estado.textContent = "Base de datos lista";
     pintarPanel();
     montar();
+    document.getElementById("btn-descargar").addEventListener("click", descargarTrabajo);
+    var archivo = document.getElementById("archivo-trabajo");
+    document.getElementById("btn-cargar").addEventListener("click", function () { archivo.value = ""; archivo.click(); });
+    archivo.addEventListener("change", function () {
+      var f = archivo.files && archivo.files[0];
+      if (!f) return;
+      var lector = new FileReader();
+      lector.onload = function () { cargarTrabajo(String(lector.result || "")); };
+      lector.readAsText(f, "utf-8");
+    });
+    if (!puedeGuardar) {
+      document.getElementById("sin-guardar").hidden = false;
+      window.addEventListener("beforeunload", function (ev) {
+        if (hayAlgoEscrito()) { ev.preventDefault(); ev.returnValue = ""; }
+      });
+    }
     document.getElementById("btn-restaurar").addEventListener("click", function () {
       abrirBD();
       pintarPanel();
       estado.textContent = "Datos restaurados";
       setTimeout(function () { estado.textContent = "Base de datos lista"; }, 2500);
     });
-    window.__bar = { ejecutar: ejecutar, huellas: huellas, comprobar: comprobar, comprobarPaso: comprobarPaso, comprobarClaves: comprobarClaves, centimos: centimos, datos: DATOS };
+    window.__bar = { ejecutar: ejecutar, huellas: huellas, comprobar: comprobar, comprobarPaso: comprobarPaso, comprobarClaves: comprobarClaves, centimos: centimos, leerArchivo: leerArchivo, cargarTrabajo: cargarTrabajo, datos: DATOS };
   }
   arrancar();
 })();
