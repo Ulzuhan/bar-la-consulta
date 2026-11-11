@@ -127,8 +127,9 @@ datos. Se dice qué se quiere, no cómo conseguirlo. La base de datos de
 la clase es <strong>SQLite</strong>, la misma que se usa desde Python
 con <code>sqlite3</code> y <code>pandas</code>.</p>
 <h2 id="la-forma-de-una-consulta">La forma de una consulta</h2>
-<p>Las piezas van siempre en este orden. Solo <code>SELECT</code> y
-<code>FROM</code> son obligatorias:</p>
+<p>Las piezas van siempre en este orden. En las consultas de esta clase
+siempre hay <code>SELECT</code> y <code>FROM</code>; las demás se ponen
+cuando hacen falta:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> columnas          <span class="co">-- qué quiero ver</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> tabla               <span class="co">-- de dónde</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> condiciones        <span class="co">-- qué filas</span></span>
@@ -171,9 +172,11 @@ cambia.</p>
 <h2 id="where-filtrar-filas">WHERE: filtrar filas</h2>
 <p>Se queda con las filas que cumplen la condición. Se compara con
 <code>=</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>,
-<code>&gt;=</code> y <code>&lt;=</code>. Es un solo <code>=</code>, no
-<code>==</code>. En SQLite el <code>=</code> distingue mayúsculas:
-<code>&#39;Postres&#39;</code> no es <code>&#39;postres&#39;</code>.</p>
+<code>&gt;=</code> y <code>&lt;=</code>. Para igual se escribe un solo
+<code>=</code>: SQLite también acepta <code>==</code>, como Python, pero
+otros motores no, así que es mejor acostumbrarse a <code>=</code>. En
+SQLite el <code>=</code> distingue mayúsculas: <code>&#39;Postres&#39;</code> no
+es <code>&#39;postres&#39;</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> precio <span class="op">&gt;</span> <span class="dv">10</span>;</span></code></pre></div>
@@ -214,7 +217,10 @@ extremos; también vale con fechas.</p>
 <h2 id="like-buscar-texto">LIKE: buscar texto</h2>
 <p><code>%</code> es “cualquier cosa”. <code>&#39;Bocadillo%&#39;</code> empieza
 por Bocadillo; <code>&#39;%queso%&#39;</code> contiene queso. En SQLite,
-<code>LIKE</code> no distingue mayúsculas.</p>
+<code>LIKE</code> no distingue mayúsculas en las letras sin tilde:
+<code>&#39;%queso%&#39;</code> encuentra “Queso manchego”. Con tildes sí las
+distingue: <code>&#39;ó%&#39;</code> no encuentra a “Óscar”, y
+<code>&#39;%JAMÓN%&#39;</code> no encuentra “Croquetas de jamón”.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> plato <span class="kw">LIKE</span> <span class="st">&#39;Bocadillo%&#39;</span>;</span></code></pre></div>
