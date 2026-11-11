@@ -114,7 +114,19 @@ th, td { border: 1px solid var(--borde); padding: 6px 10px; text-align: left; ve
 th { background: var(--superficie-2); }
 a { color: var(--enlace); text-underline-offset: 2px; }
 :focus-visible { outline: 2px solid #d29a2a; outline-offset: 2px; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) pre code span { filter: brightness(1.6); } }
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) code span.kw, :root:not([data-theme="light"]) code span.cf, :root:not([data-theme="light"]) code span.dt,
+:root:not([data-theme="light"]) code span.fu, :root:not([data-theme="light"]) code span.at { color: #93bde9; }
+:root:not([data-theme="light"]) code span.dv, :root:not([data-theme="light"]) code span.bn, :root:not([data-theme="light"]) code span.fl { color: #e3b866; }
+:root:not([data-theme="light"]) code span.st, :root:not([data-theme="light"]) code span.ch, :root:not([data-theme="light"]) code span.ss,
+:root:not([data-theme="light"]) code span.vs { color: #9fd486; }
+:root:not([data-theme="light"]) code span.op, :root:not([data-theme="light"]) code span.sc { color: #eaa974; }
+:root:not([data-theme="light"]) code span.co, :root:not([data-theme="light"]) code span.do, :root:not([data-theme="light"]) code span.an,
+:root:not([data-theme="light"]) code span.cv, :root:not([data-theme="light"]) code span.cn, :root:not([data-theme="light"]) code span.in,
+:root:not([data-theme="light"]) code span.ot, :root:not([data-theme="light"]) code span.pp, :root:not([data-theme="light"]) code span.wa { color: #aab5ae; }
+:root:not([data-theme="light"]) code span.va { color: var(--tinta); }
+:root:not([data-theme="light"]) code span.al, :root:not([data-theme="light"]) code span.er { color: #ff8f86; }
+}
 </style>
   <style type="text/css">@font-face {
 font-family: 'Bree Serif';
@@ -132,7 +144,7 @@ src: url(data:font/ttf;base64,AAEAAAAPAIAAAwBwR0RFRgARAYwAAAEMAAAAFkdQT1PXo6JGAA
 </header>
 <h1 id="sql-la-teoría-de-la-clase">SQL: la teoría de la clase</h1>
 <p>Los ejemplos son los de clase. Puedes probarlos en el <a href="./">laboratorio</a>.</p>
-<h2 id="qué-es-una-base-de-datos">Qué es una base de datos</h2>
+<h2 id="base-de-datos">Qué es una base de datos</h2>
 <p>Una base de datos guarda la información en <strong>tablas</strong>,
 como las hojas de un Excel. Cada <strong>fila</strong> es una cosa (un
 plato, una comanda) y cada <strong>columna</strong> es un dato suyo (el
@@ -168,7 +180,7 @@ ordenar como textos.</li>
 ejecuta.</li>
 <li>El <code>;</code> marca el final de la consulta.</li>
 </ul>
-<h2 id="select-elegir-columnas">SELECT: elegir columnas</h2>
+<h2 id="select">SELECT: elegir columnas</h2>
 <p><code>*</code> son todas las columnas. Si no, se escriben separadas
 por comas, en el orden en que se quieren ver.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> carta;</span></code></pre></div>
@@ -188,7 +200,7 @@ cualesquiera.</p>
 <code>AS</code> le pone nombre a la columna del resultado. La tabla no
 cambia.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio, precio <span class="op">*</span> <span class="fl">1.10</span> <span class="kw">AS</span> precio_nuevo <span class="kw">FROM</span> carta;</span></code></pre></div>
-<h2 id="where-filtrar-filas">WHERE: filtrar filas</h2>
+<h2 id="where">WHERE: filtrar filas</h2>
 <p>Se queda con las filas que cumplen la condición. Se compara con
 <code>=</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>,
 <code>&gt;=</code> y <code>&lt;=</code>. Para igual se escribe un solo
@@ -206,7 +218,7 @@ es <code>&#39;postres&#39;</code>.</p>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> fecha <span class="op">=</span> <span class="st">&#39;2026-10-31&#39;</span>;</span></code></pre></div>
 <p>En pandas: <code>carta[carta[&quot;precio&quot;] &gt; 10]</code></p>
-<h2 id="and-y-or">AND y OR</h2>
+<h2 id="and-or">AND y OR</h2>
 <p>Con <code>AND</code> se tienen que cumplir las dos condiciones; con
 <code>OR</code>, basta una. <code>AND</code> se hace antes que
 <code>OR</code>: si se mezclan, paréntesis.</p>
@@ -248,7 +260,7 @@ distingue: <code>&#39;ó%&#39;</code> no encuentra a “Óscar”, y
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> plato <span class="kw">LIKE</span> <span class="st">&#39;%queso%&#39;</span>;</span></code></pre></div>
 <p>En pandas:
 <code>carta[&quot;plato&quot;].str.contains(&quot;queso&quot;, case=False)</code></p>
-<h2 id="order-by-ordenar">ORDER BY: ordenar</h2>
+<h2 id="order-by">ORDER BY: ordenar</h2>
 <p>De menor a mayor si no se dice nada; <code>DESC</code> es de mayor a
 menor. Con <code>LIMIT</code>, el top: los 5 más caros.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
@@ -260,7 +272,7 @@ menor. Con <code>LIMIT</code>, el top: los 5 más caros.</p>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">5</span>;</span></code></pre></div>
 <p>En pandas:
 <code>carta.sort_values(&quot;precio&quot;, ascending=False).head(5)</code></p>
-<h2 id="count-sum-avg-min-y-max">COUNT, SUM, AVG, MIN y MAX</h2>
+<h2 id="funciones">COUNT, SUM, AVG, MIN y MAX</h2>
 <p>Convierten muchas filas en un número: cuántas hay, la suma, la media,
 el mínimo y el máximo. <code>ROUND(número, 2)</code> deja dos
 decimales.</p>
@@ -272,7 +284,7 @@ decimales.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">MIN</span>(precio) <span class="kw">AS</span> mas_barato, <span class="fu">MAX</span>(precio) <span class="kw">AS</span> mas_caro <span class="kw">FROM</span> carta;</span></code></pre></div>
 <p>En pandas:
 <code>len(comandas), comandas[&quot;total&quot;].sum(), comandas[&quot;total&quot;].mean()</code></p>
-<h2 id="group-by-por-grupos">GROUP BY: por grupos</h2>
+<h2 id="group-by">GROUP BY: por grupos</h2>
 <p>Hace el cálculo una vez por cada grupo. Lo que va en el
 <code>SELECT</code> tiene que estar en el <code>GROUP BY</code> o dentro
 de <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>…</p>
@@ -293,7 +305,7 @@ filtra los grupos después. En el <code>WHERE</code> no se puede usar
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> categoria</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="dv">5</span>;</span></code></pre></div>
-<h2 id="null-la-casilla-vacía">NULL: la casilla vacía</h2>
+<h2 id="null">NULL: la casilla vacía</h2>
 <p><code>NULL</code> es que no hay dato: no es 0 ni un texto vacío. Se
 busca con <code>IS NULL</code> o <code>IS NOT NULL</code>, nunca con
 <code>= NULL</code>.</p>
@@ -310,7 +322,7 @@ que se cumple; si no se cumple ninguno, el <code>ELSE</code>.</p>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">ELSE</span> <span class="st">&#39;normal&#39;</span></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">END</span> <span class="kw">AS</span> gama</span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta;</span></code></pre></div>
-<h2 id="join-juntar-dos-tablas">JOIN: juntar dos tablas</h2>
+<h2 id="join">JOIN: juntar dos tablas</h2>
 <p>Junta cada fila de una tabla con la fila de la otra cuyo id coincide.
 Delante de cada columna se escribe su tabla. Con <code>AS</code> se le
 pone a cada tabla un nombre corto.</p>
@@ -324,16 +336,56 @@ pone a cada tabla un nombre corto.</p>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> num_comandas <span class="kw">DESC</span>;</span></code></pre></div>
 <p>En pandas:
 <code>comandas.merge(personal, left_on=&quot;camarero_id&quot;, right_on=&quot;id&quot;)</code></p>
+<p>Cuidado cuando a cada fila le tocan varias de la otra tabla (uno a
+muchos). Una comanda tiene varias líneas, así que al juntarlas la
+comanda sale una vez por línea y su total se repite:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> c.<span class="kw">id</span>, c.total, l.plato_id, l.cantidad</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas <span class="kw">AS</span> c</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> lineas <span class="kw">AS</span> l <span class="kw">ON</span> l.comanda_id <span class="op">=</span> c.<span class="kw">id</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> c.<span class="kw">id</span> <span class="op">=</span> <span class="dv">2</span>;</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>total</th>
+<th>plato_id</th>
+<th>cantidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>11</td>
+<td>4</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>11</td>
+<td>24</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>11</td>
+<td>29</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>Aquí <code>COUNT(*)</code> contaría 3 filas, no 1 comanda, y
+<code>SUM(c.total)</code> sumaría 33 € en vez de 11 €. Para contar o
+sumar comandas, la tabla comandas sola.</p>
 <h2 id="left-join-los-que-no-tienen-pareja">LEFT JOIN: los que no tienen
 pareja</h2>
 <p><code>JOIN</code> solo deja las filas que tienen pareja en las dos
 tablas. <code>LEFT JOIN</code> deja todas las de la primera, y donde no
 hay pareja pone <code>NULL</code>. Así se encuentra lo que no aparece en
 la otra tabla.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.nombre, p.puesto</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> personal <span class="kw">AS</span> p</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> comandas <span class="kw">AS</span> c <span class="kw">ON</span> c.camarero_id <span class="op">=</span> p.<span class="kw">id</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> c.<span class="kw">id</span> <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.nombre, p.puesto</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> personal <span class="kw">AS</span> p</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> comandas <span class="kw">AS</span> c <span class="kw">ON</span> c.camarero_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> c.<span class="kw">id</span> <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code></pre></div>
 <h2 id="errores-típicos">Errores típicos</h2>
 <table>
 <colgroup>
@@ -385,7 +437,7 @@ al final</td>
 </tr>
 </tbody>
 </table>
-<h2 id="qué-usar-y-cuándo">Qué usar y cuándo</h2>
+<h2 id="que-usar">Qué usar y cuándo</h2>
 <table>
 <colgroup>
 <col style="width: 33%" />
