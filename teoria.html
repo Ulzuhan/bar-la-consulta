@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.13" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SQL · Teoría</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">:root { --fondo: #f7f2e9; --tinta: #2a2521; --suave: #6b6158; --borde: #ddd3c2; --codigo: #fffdf8; --acento: #b5492a; --cabeza: #f1ebdf; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) { --fondo: #191816; --tinta: #ece5d8; --suave: #a99f92; --borde: #3d3934; --codigo: #23211e; --acento: #e2805f; --cabeza: #2c2a26; color-scheme: dark; }
+}
+body { max-width: 860px; margin: 0 auto; padding: 28px 16px 80px; background: var(--fondo); color: var(--tinta); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16.5px; line-height: 1.6; }
+header#title-block-header { display: none; }
+h1 { font-family: "Bree Serif", Georgia, serif; font-weight: 400; font-size: 2em; margin-bottom: .2em; }
+h2 { font-size: 1.3em; margin-top: 2em; border-bottom: 1px solid var(--borde); padding-bottom: .2em; }
+pre { background: var(--codigo); border: 1px solid var(--borde); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 14.5px; line-height: 1.5; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
+p code, li code, td code { background: var(--cabeza); padding: .1em .35em; border-radius: 4px; }
+table { border-collapse: collapse; margin: 1em 0; width: 100%; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--borde); padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: var(--cabeza); }
+a { color: var(--acento); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) pre code span { filter: brightness(1.6); } }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">SQL · Teoría</h1>
+</header>
+<h1 id="sql-la-teoría-de-la-clase">SQL: la teoría de la clase</h1>
+<p>Bar La Consulta · Bootcamp 202609. Los ejemplos son los de clase y se
+pueden probar en el <a href="./">laboratorio</a>.</p>
+<h2 id="qué-es-una-base-de-datos">Qué es una base de datos</h2>
+<p>Una base de datos guarda la información en <strong>tablas</strong>,
+como las hojas de un Excel. Cada <strong>fila</strong> es una cosa (un
+plato, una comanda) y cada <strong>columna</strong> es un dato suyo (el
+precio, la fecha).</p>
+<p>Las tablas se relacionan por sus <strong>ids</strong>. Cada comanda
+tiene un <code>camarero_id</code>: es el <code>id</code> de una fila de
+la tabla <code>personal</code>. Así el nombre del camarero se guarda una
+sola vez y no en cada comanda.</p>
+<p><strong>SQL</strong> es el idioma para pedirle datos a una base de
+datos. Se dice qué se quiere, no cómo conseguirlo. La base de datos de
+la clase es <strong>SQLite</strong>, la misma que se usa desde Python
+con <code>sqlite3</code> y <code>pandas</code>.</p>
+<h2 id="la-forma-de-una-consulta">La forma de una consulta</h2>
+<p>Las piezas van siempre en este orden. Solo <code>SELECT</code> y
+<code>FROM</code> son obligatorias:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> columnas          <span class="co">-- qué quiero ver</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> tabla               <span class="co">-- de dónde</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> condiciones        <span class="co">-- qué filas</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> columnas        <span class="co">-- cómo agrupo</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> condiciones       <span class="co">-- qué grupos</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> columnas        <span class="co">-- cómo ordeno</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> número;            <span class="co">-- cuántas filas</span></span></code></pre></div>
+<ul>
+<li>Las palabras de SQL se escriben en mayúsculas por costumbre, para
+distinguirlas de los nombres de las tablas y las columnas. En minúsculas
+también funcionan.</li>
+<li>Los textos y las fechas van entre <strong>comillas simples</strong>:
+<code>&#39;terraza&#39;</code>, <code>&#39;2026-10-31&#39;</code>.</li>
+<li>Las fechas se escriben año-mes-día, y así se pueden comparar y
+ordenar como textos.</li>
+<li><code>--</code> empieza un comentario: lo que va detrás no se
+ejecuta.</li>
+<li>El <code>;</code> marca el final de la consulta.</li>
+</ul>
+<h2 id="select-elegir-columnas">SELECT: elegir columnas</h2>
+<p><code>*</code> son todas las columnas. Si no, se escriben separadas
+por comas, en el orden en que se quieren ver.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> carta;</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio <span class="kw">FROM</span> carta;</span></code></pre></div>
+<p>En pandas: <code>carta[[&quot;plato&quot;, &quot;precio&quot;]]</code></p>
+<h2 id="limit-unas-pocas-filas">LIMIT: unas pocas filas</h2>
+<p>Va siempre al final. Sin <code>ORDER BY</code> da filas
+cualesquiera.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> comandas <span class="kw">LIMIT</span> <span class="dv">5</span>;</span></code></pre></div>
+<p>En pandas: <code>comandas.head(5)</code></p>
+<h2 id="distinct-sin-repetir">DISTINCT: sin repetir</h2>
+<p>Cada valor una sola vez.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> categoria <span class="kw">FROM</span> carta;</span></code></pre></div>
+<p>En pandas: <code>carta[&quot;categoria&quot;].unique()</code></p>
+<h2 id="cálculos-y-as">Cálculos y AS</h2>
+<p>Se puede operar con las columnas (<code>+ - * /</code>).
+<code>AS</code> le pone nombre a la columna del resultado. La tabla no
+cambia.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio, precio <span class="op">*</span> <span class="fl">1.10</span> <span class="kw">AS</span> precio_nuevo <span class="kw">FROM</span> carta;</span></code></pre></div>
+<h2 id="where-filtrar-filas">WHERE: filtrar filas</h2>
+<p>Se queda con las filas que cumplen la condición. Se compara con
+<code>=</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>,
+<code>&gt;=</code> y <code>&lt;=</code>. Es un solo <code>=</code>, no
+<code>==</code>. En SQLite el <code>=</code> distingue mayúsculas:
+<code>&#39;Postres&#39;</code> no es <code>&#39;postres&#39;</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> precio <span class="op">&gt;</span> <span class="dv">10</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, categoria</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> categoria <span class="op">=</span> <span class="st">&#39;postres&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> fecha <span class="op">=</span> <span class="st">&#39;2026-10-31&#39;</span>;</span></code></pre></div>
+<p>En pandas: <code>carta[carta[&quot;precio&quot;] &gt; 10]</code></p>
+<h2 id="and-y-or">AND y OR</h2>
+<p>Con <code>AND</code> se tienen que cumplir las dos condiciones; con
+<code>OR</code>, basta una. <code>AND</code> se hace antes que
+<code>OR</code>: si se mezclan, paréntesis.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> categoria <span class="op">=</span> <span class="st">&#39;tapas&#39;</span> <span class="kw">AND</span> precio <span class="op">&lt;</span> <span class="dv">4</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, categoria</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> categoria <span class="op">=</span> <span class="st">&#39;postres&#39;</span> <span class="kw">OR</span> categoria <span class="op">=</span> <span class="st">&#39;bebidas&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, categoria, precio</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> (categoria <span class="op">=</span> <span class="st">&#39;tapas&#39;</span> <span class="kw">OR</span> categoria <span class="op">=</span> <span class="st">&#39;raciones&#39;</span>) <span class="kw">AND</span> precio <span class="op">&gt;</span> <span class="dv">10</span>;</span></code></pre></div>
+<p>En pandas:
+<code>(carta[&quot;categoria&quot;] == &quot;tapas&quot;) &amp; (carta[&quot;precio&quot;] &lt; 4)</code></p>
+<h2 id="in-y-between">IN y BETWEEN</h2>
+<p><code>IN</code> es una lista de valores (como varios
+<code>OR</code>). <code>BETWEEN</code> es un rango e incluye los dos
+extremos; también vale con fechas.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, categoria</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> categoria <span class="kw">IN</span> (<span class="st">&#39;postres&#39;</span>, <span class="st">&#39;bebidas&#39;</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> precio <span class="kw">BETWEEN</span> <span class="dv">5</span> <span class="kw">AND</span> <span class="dv">8</span>;</span></code></pre></div>
+<p>En pandas:
+<code>carta[&quot;categoria&quot;].isin([&quot;postres&quot;, &quot;bebidas&quot;]) y carta[&quot;precio&quot;].between(5, 8)</code></p>
+<h2 id="like-buscar-texto">LIKE: buscar texto</h2>
+<p><code>%</code> es “cualquier cosa”. <code>&#39;Bocadillo%&#39;</code> empieza
+por Bocadillo; <code>&#39;%queso%&#39;</code> contiene queso. En SQLite,
+<code>LIKE</code> no distingue mayúsculas.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> plato <span class="kw">LIKE</span> <span class="st">&#39;Bocadillo%&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> plato <span class="kw">LIKE</span> <span class="st">&#39;%queso%&#39;</span>;</span></code></pre></div>
+<p>En pandas:
+<code>carta[&quot;plato&quot;].str.contains(&quot;queso&quot;, case=False)</code></p>
+<h2 id="order-by-ordenar">ORDER BY: ordenar</h2>
+<p>De menor a mayor si no se dice nada; <code>DESC</code> es de mayor a
+menor. Con <code>LIMIT</code>, el top: los 5 más caros.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> precio <span class="kw">DESC</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> precio <span class="kw">DESC</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">5</span>;</span></code></pre></div>
+<p>En pandas:
+<code>carta.sort_values(&quot;precio&quot;, ascending=False).head(5)</code></p>
+<h2 id="count-sum-avg-min-y-max">COUNT, SUM, AVG, MIN y MAX</h2>
+<p>Convierten muchas filas en un número: cuántas hay, la suma, la media,
+el mínimo y el máximo. <code>ROUND(número, 2)</code> deja dos
+decimales.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> comandas;</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> pago <span class="op">=</span> <span class="st">&#39;efectivo&#39;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">ROUND</span>(<span class="fu">AVG</span>(total), <span class="dv">2</span>) <span class="kw">AS</span> ticket_medio <span class="kw">FROM</span> comandas;</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">MIN</span>(precio) <span class="kw">AS</span> mas_barato, <span class="fu">MAX</span>(precio) <span class="kw">AS</span> mas_caro <span class="kw">FROM</span> carta;</span></code></pre></div>
+<p>En pandas:
+<code>len(comandas), comandas[&quot;total&quot;].sum(), comandas[&quot;total&quot;].mean()</code></p>
+<h2 id="group-by-por-grupos">GROUP BY: por grupos</h2>
+<p>Hace el cálculo una vez por cada grupo. Lo que va en el
+<code>SELECT</code> tiene que estar en el <code>GROUP BY</code> o dentro
+de <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>…</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> categoria, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_platos</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> categoria;</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> pago, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> pago</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> num_comandas <span class="kw">DESC</span>;</span></code></pre></div>
+<p>En pandas:
+<code>carta.groupby(&quot;categoria&quot;).size() y comandas[&quot;pago&quot;].value_counts()</code></p>
+<h2 id="having-filtrar-grupos">HAVING: filtrar grupos</h2>
+<p><code>WHERE</code> filtra filas antes de agrupar; <code>HAVING</code>
+filtra los grupos después. En el <code>WHERE</code> no se puede usar
+<code>COUNT</code> ni <code>SUM</code>.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> categoria, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_platos</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> categoria</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="dv">5</span>;</span></code></pre></div>
+<h2 id="null-la-casilla-vacía">NULL: la casilla vacía</h2>
+<p><code>NULL</code> es que no hay dato: no es 0 ni un texto vacío. Se
+busca con <code>IS NULL</code> o <code>IS NOT NULL</code>, nunca con
+<code>= NULL</code>.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, alergenos</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> alergenos <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code></pre></div>
+<p>En pandas: <code>carta[carta[&quot;alergenos&quot;].isna()]</code></p>
+<h2 id="case-crear-categorías">CASE: crear categorías</h2>
+<p>El <code>if</code> de SQL. Se queda con el primer <code>WHEN</code>
+que se cumple; si no se cumple ninguno, el <code>ELSE</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">CASE</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">WHEN</span> precio <span class="op">&gt;=</span> <span class="dv">10</span> <span class="cf">THEN</span> <span class="st">&#39;cara&#39;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">ELSE</span> <span class="st">&#39;normal&#39;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">END</span> <span class="kw">AS</span> gama</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta;</span></code></pre></div>
+<h2 id="join-juntar-dos-tablas">JOIN: juntar dos tablas</h2>
+<p>Junta cada fila de una tabla con la fila de la otra cuyo id coincide.
+Delante de cada columna se escribe su tabla.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> comandas.<span class="kw">id</span>, comandas.total, personal.nombre</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> personal <span class="kw">ON</span> comandas.camarero_id <span class="op">=</span> personal.<span class="kw">id</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> personal.nombre, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> personal <span class="kw">ON</span> comandas.camarero_id <span class="op">=</span> personal.<span class="kw">id</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> personal.nombre</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> num_comandas <span class="kw">DESC</span>;</span></code></pre></div>
+<p>En pandas:
+<code>comandas.merge(personal, left_on=&quot;camarero_id&quot;, right_on=&quot;id&quot;)</code></p>
+<h2 id="errores-típicos">Errores típicos</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Lo que ves</th>
+<th>Qué pasa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>no such column: terraza</code></td>
+<td>Falta poner el texto entre comillas: <code>&#39;terraza&#39;</code></td>
+</tr>
+<tr>
+<td><code>no such column</code> con un nombre de columna</td>
+<td>Está mal escrito. Mira el panel de tablas</td>
+</tr>
+<tr>
+<td>No sale ninguna fila</td>
+<td>Mayúsculas o tildes en el texto que buscas (<code>&#39;Terraza&#39;</code>,
+<code>&#39;salón&#39;</code>)</td>
+</tr>
+<tr>
+<td><code>near &quot;FROM&quot;: syntax error</code></td>
+<td>Una coma de más antes del <code>FROM</code>, o las piezas en otro
+orden</td>
+</tr>
+<tr>
+<td><code>misuse of aggregate</code></td>
+<td><code>COUNT</code> o <code>SUM</code> en el <code>WHERE</code>: va
+en el <code>HAVING</code></td>
+</tr>
+<tr>
+<td><code>incomplete input</code></td>
+<td>Falta cerrar una comilla o un paréntesis</td>
+</tr>
+<tr>
+<td>Salen muchos decimales</td>
+<td>Es normal en los ordenadores: <code>ROUND(número, 2)</code></td>
+</tr>
+<tr>
+<td><code>TOP</code> da error</td>
+<td><code>TOP</code> es de SQL Server. En SQLite es <code>LIMIT</code>
+al final</td>
+</tr>
+</tbody>
+</table>
+<h2 id="qué-usar-y-cuándo">Qué usar y cuándo</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Quiero…</th>
+<th>SQL</th>
+<th>Documentación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ver unas columnas</td>
+<td><code>SELECT a, b FROM tabla</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_select.asp">SELECT</a></td>
+</tr>
+<tr>
+<td>Ver unas pocas filas</td>
+<td><code>LIMIT 5</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_top.asp">LIMIT</a></td>
+</tr>
+<tr>
+<td>Valores sin repetir</td>
+<td><code>SELECT DISTINCT</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_distinct.asp">DISTINCT</a></td>
+</tr>
+<tr>
+<td>Ponerle nombre a una columna</td>
+<td><code>AS nombre</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_alias.asp">AS</a></td>
+</tr>
+<tr>
+<td>Filtrar filas</td>
+<td><code>WHERE</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_where.asp">WHERE</a></td>
+</tr>
+<tr>
+<td>Varias condiciones</td>
+<td><code>AND</code>, <code>OR</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_and.asp">AND</a> · <a href="https://www.w3schools.com/sql/sql_or.asp">OR</a></td>
+</tr>
+<tr>
+<td>Una lista de valores</td>
+<td><code>IN (...)</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_in.asp">IN</a></td>
+</tr>
+<tr>
+<td>Un rango</td>
+<td><code>BETWEEN a AND b</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_between.asp">BETWEEN</a></td>
+</tr>
+<tr>
+<td>Buscar un texto</td>
+<td><code>LIKE &#39;%texto%&#39;</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_like.asp">LIKE</a></td>
+</tr>
+<tr>
+<td>Ordenar</td>
+<td><code>ORDER BY columna DESC</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_orderby.asp">ORDER
+BY</a></td>
+</tr>
+<tr>
+<td>Contar, sumar, media</td>
+<td><code>COUNT(*)</code>, <code>SUM</code>, <code>AVG</code>,
+<code>MIN</code>, <code>MAX</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_count.asp">COUNT</a> · <a href="https://www.w3schools.com/sql/sql_sum.asp">SUM</a> · <a href="https://www.w3schools.com/sql/sql_avg.asp">AVG</a> · <a href="https://www.w3schools.com/sql/sql_min_max.asp">MIN y MAX</a></td>
+</tr>
+<tr>
+<td>Redondear</td>
+<td><code>ROUND(x, 2)</code></td>
+<td><a href="https://www.sqlite.org/lang_corefunc.html#round">ROUND</a></td>
+</tr>
+<tr>
+<td>Un cálculo por grupo</td>
+<td><code>GROUP BY</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_groupby.asp">GROUP
+BY</a></td>
+</tr>
+<tr>
+<td>Quedarme con algunos grupos</td>
+<td><code>HAVING</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_having.asp">HAVING</a></td>
+</tr>
+<tr>
+<td>Buscar huecos</td>
+<td><code>IS NULL</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_null_values.asp">NULL</a></td>
+</tr>
+<tr>
+<td>Crear categorías</td>
+<td><code>CASE WHEN ... END</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_case.asp">CASE</a></td>
+</tr>
+<tr>
+<td>Juntar dos tablas</td>
+<td><code>JOIN ... ON</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_join_inner.asp">JOIN</a></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
