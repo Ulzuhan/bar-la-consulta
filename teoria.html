@@ -386,6 +386,46 @@ la otra tabla.</p>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> personal <span class="kw">AS</span> p</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> comandas <span class="kw">AS</span> c <span class="kw">ON</span> c.camarero_id <span class="op">=</span> p.<span class="kw">id</span></span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> c.<span class="kw">id</span> <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code></pre></div>
+<h2 id="fechas">Fechas y horas: strftime</h2>
+<p>Las fechas se guardan como textos con la forma año-mes-día.
+<code>strftime</code> saca un trozo, y por ese trozo se puede agrupar o
+filtrar: <code>%w</code> es el día de la semana (0 es domingo y 6 es
+sábado), <code>%H</code> la hora, <code>%d</code> el día del mes,
+<code>%m</code> el mes, <code>%Y</code> el año y <code>%W</code> el
+número de la semana. Lo que devuelve es un texto: para filtrar se
+escribe <code>= &#39;6&#39;</code>, con comillas. <code>strftime</code> es de
+SQLite; en otras bases de datos se llama <code>EXTRACT</code> o
+<code>DATEPART</code>.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> fecha, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas, <span class="fu">SUM</span>(total) <span class="kw">AS</span> facturado</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> fecha</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> fecha;</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> strftime(<span class="st">&#39;%w&#39;</span>, fecha) <span class="kw">AS</span> dia_semana, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas, <span class="fu">SUM</span>(total) <span class="kw">AS</span> facturado</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> dia_semana;</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> strftime(<span class="st">&#39;%H&#39;</span>, hora) <span class="kw">AS</span> h, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> h;</span></code></pre></div>
+<p>En pandas: <code>comandas.groupby(&quot;fecha&quot;)[&quot;total&quot;].sum()</code></p>
+<h2 id="subconsultas">Subconsultas: una consulta dentro de otra</h2>
+<p>Una consulta entre paréntesis se calcula primero, y su resultado se
+usa en la de fuera. Sirve para comparar cada fila con la media, con el
+máximo o con el total, sin copiar el número a mano.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, precio</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> precio <span class="op">&gt;</span> (<span class="kw">SELECT</span> <span class="fu">AVG</span>(precio) <span class="kw">FROM</span> carta);</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> total <span class="op">=</span> (<span class="kw">SELECT</span> <span class="fu">MAX</span>(total) <span class="kw">FROM</span> comandas);</span></code></pre></div>
+<p>En pandas:
+<code>carta[carta[&quot;precio&quot;] &gt; carta[&quot;precio&quot;].mean()]</code></p>
+<p>Un <strong>porcentaje</strong> es la parte entre el total, y el total
+es otra consulta. Se escribe <code>100.0</code>, con decimal: si se
+dividen dos números enteros, SQL tira los decimales.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> pago, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_comandas,</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ROUND</span>(<span class="fl">100.0</span> <span class="op">*</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">/</span> (<span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> comandas), <span class="dv">1</span>) <span class="kw">AS</span> porcentaje</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> pago;</span></code></pre></div>
 <h2 id="errores-típicos">Errores típicos</h2>
 <table>
 <colgroup>
@@ -429,6 +469,15 @@ en el <code>HAVING</code></td>
 <tr>
 <td>Salen muchos decimales</td>
 <td>Es normal en los ordenadores: <code>ROUND(número, 2)</code></td>
+</tr>
+<tr>
+<td>Un porcentaje sale sin decimales, o sale 0</td>
+<td>Se han dividido dos enteros: <code>100.0</code> en vez de
+<code>100</code></td>
+</tr>
+<tr>
+<td>Con <code>strftime</code> no sale ninguna fila</td>
+<td>Devuelve un texto: <code>= &#39;6&#39;</code>, con comillas</td>
 </tr>
 <tr>
 <td><code>TOP</code> da error</td>
@@ -539,6 +588,21 @@ BY</a></td>
 <td>Juntar dos tablas</td>
 <td><code>JOIN ... ON</code></td>
 <td><a href="https://www.w3schools.com/sql/sql_join_inner.asp">JOIN</a></td>
+</tr>
+<tr>
+<td>Agrupar por día de la semana, hora o mes</td>
+<td><code>strftime(&#39;%w&#39;, fecha)</code></td>
+<td><a href="https://www.sqlite.org/lang_datefunc.html">strftime</a></td>
+</tr>
+<tr>
+<td>Comparar con la media o con el máximo</td>
+<td><code>WHERE x &gt; (SELECT AVG(x) FROM tabla)</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-subquery/">Subconsultas</a></td>
+</tr>
+<tr>
+<td>Un porcentaje sobre el total</td>
+<td><code>100.0 * SUM(x) / (SELECT SUM(x) FROM tabla)</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-subquery/">Subconsultas</a></td>
 </tr>
 <tr>
 <td>Ver lo que no tiene pareja en otra tabla</td>
