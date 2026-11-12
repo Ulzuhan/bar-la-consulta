@@ -426,6 +426,119 @@ dividen dos números enteros, SQL tira los decimales.</p>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ROUND</span>(<span class="fl">100.0</span> <span class="op">*</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="op">/</span> (<span class="kw">SELECT</span> <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> comandas), <span class="dv">1</span>) <span class="kw">AS</span> porcentaje</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> comandas</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> pago;</span></code></pre></div>
+<h2 id="coalesce-rellenar-la-casilla-vacía">COALESCE: rellenar la
+casilla vacía</h2>
+<p><code>COALESCE(a, b)</code> da <code>a</code>, y si <code>a</code> es
+<code>NULL</code>, da <code>b</code>. La tabla no cambia: solo lo que se
+ve en el resultado.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> plato, <span class="fu">COALESCE</span>(alergenos, <span class="st">&#39;sin revisar&#39;</span>) <span class="kw">AS</span> alergenos</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> carta;</span></code></pre></div>
+<p>En pandas: <code>carta[&quot;alergenos&quot;].fillna(&quot;sin revisar&quot;)</code></p>
+<h2 id="cambiar-datos">INSERT, UPDATE y DELETE: cambiar datos</h2>
+<p><code>INSERT</code> añade filas, <code>UPDATE</code> cambia las que
+cumplen el <code>WHERE</code> y <code>DELETE</code> las borra.
+<strong>Sin <code>WHERE</code>, <code>UPDATE</code> y
+<code>DELETE</code> actúan sobre toda la tabla</strong>, y no preguntan.
+Antes de cambiar o borrar, se hace un <code>SELECT</code> con el mismo
+<code>WHERE</code> para ver qué filas son.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> reservas (fecha, hora, nombre, personas, zona, telefono)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;2026-11-15&#39;</span>, <span class="st">&#39;14:00&#39;</span>, <span class="st">&#39;Luis Marín&#39;</span>, <span class="dv">3</span>, <span class="st">&#39;salon&#39;</span>, <span class="st">&#39;600888999&#39;</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> reservas</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SET</span> personas <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> <span class="dv">10</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">DELETE</span> <span class="kw">FROM</span> reservas</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> <span class="dv">11</span>;</span></code></pre></div>
+<p><code>CREATE TABLE</code> crea una tabla nueva. Cada columna lleva su
+tipo (<code>INTEGER</code>, <code>REAL</code> o <code>TEXT</code>).
+<code>PRIMARY KEY</code> es la columna que identifica cada fila y no se
+repite; <code>NOT NULL</code>, la que no puede quedarse vacía. Cuando
+una tabla guarda el <code>id</code> de una fila de otra (como
+<code>comandas.camarero_id</code>), esa columna es una clave ajena, y es
+por la que se hace el <code>JOIN</code>.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> proveedores (</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> <span class="dt">INTEGER</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  nombre TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  telefono TEXT</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<h2 id="with">WITH: consultas por pasos</h2>
+<p><code>WITH nombre AS (consulta)</code> le pone nombre al resultado de
+una consulta para usarlo después como si fuera una tabla. Se pueden
+encadenar varios pasos separados por comas. Sirve para resumir cada
+tabla por separado antes de juntarlas, y para que una consulta larga se
+lea de arriba abajo.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> por_dia <span class="kw">AS</span> (</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> fecha, <span class="fu">SUM</span>(total) <span class="kw">AS</span> facturado</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> comandas</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> fecha</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> fecha, facturado</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> por_dia</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> facturado <span class="op">&gt;</span> (<span class="kw">SELECT</span> <span class="fu">AVG</span>(facturado) <span class="kw">FROM</span> por_dia)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> facturado <span class="kw">DESC</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> ventas <span class="kw">AS</span> (</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> camarero_id, <span class="fu">SUM</span>(total) <span class="kw">AS</span> vendido</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> comandas</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> camarero_id</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>),</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>anulado <span class="kw">AS</span> (</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> personal_id, <span class="fu">SUM</span>(importe) <span class="kw">AS</span> anulado</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> anulaciones</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> personal_id</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> p.nombre, v.vendido, a.anulado</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> personal <span class="kw">AS</span> p</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> ventas <span class="kw">AS</span> v <span class="kw">ON</span> v.camarero_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a><span class="kw">JOIN</span> anulado <span class="kw">AS</span> a <span class="kw">ON</span> a.personal_id <span class="op">=</span> p.<span class="kw">id</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> v.vendido <span class="kw">DESC</span>;</span></code></pre></div>
+<h2 id="union-una-tabla-debajo-de-otra">UNION: una tabla debajo de
+otra</h2>
+<p>Apila los resultados de dos consultas, que tienen que sacar el mismo
+número de columnas. <code>UNION</code> quita las filas repetidas y
+<code>UNION ALL</code> las deja todas.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">&#39;incidencia&#39;</span> <span class="kw">AS</span> que, tipo <span class="kw">AS</span> detalle</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> incidencias</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> fecha <span class="op">=</span> <span class="st">&#39;2026-11-07&#39;</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="kw">UNION</span> <span class="kw">ALL</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="st">&#39;anulación&#39;</span>, motivo</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> anulaciones</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> fecha <span class="op">=</span> <span class="st">&#39;2026-11-07&#39;</span>;</span></code></pre></div>
+<p>En pandas: <code>pd.concat([a, b])</code></p>
+<h2 id="ventanas">Funciones de ventana: rankings y acumulados</h2>
+<p>Hacen un cálculo sobre un grupo de filas sin juntarlas en una sola.
+<code>OVER</code> dice sobre qué filas: <code>PARTITION BY</code> las
+reparte en grupos y <code>ORDER BY</code> las ordena dentro de cada
+grupo. <code>RANK()</code> da el puesto (con empates),
+<code>ROW_NUMBER()</code> numera sin empates,
+<code>SUM(...) OVER (ORDER BY ...)</code> lleva un acumulado y
+<code>LAG(...)</code> trae el valor de la fila anterior. Para filtrar
+por el puesto hace falta un <code>WITH</code>, porque el puesto se
+calcula después del <code>WHERE</code>.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> ranking <span class="kw">AS</span> (</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> categoria, plato, precio,</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> categoria <span class="kw">ORDER</span> <span class="kw">BY</span> precio <span class="kw">DESC</span>) <span class="kw">AS</span> puesto</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> carta</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> categoria, plato, precio</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ranking</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> puesto <span class="op">=</span> <span class="dv">1</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> por_dia <span class="kw">AS</span> (</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> fecha, <span class="fu">SUM</span>(total) <span class="kw">AS</span> facturado</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> comandas</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> fecha</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> fecha, facturado,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">SUM</span>(facturado) <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> fecha) <span class="kw">AS</span> acumulado</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> por_dia;</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> por_dia <span class="kw">AS</span> (</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> fecha, <span class="fu">SUM</span>(total) <span class="kw">AS</span> facturado</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> comandas</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> fecha</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> fecha, facturado,</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  facturado <span class="op">-</span> <span class="fu">LAG</span>(facturado) <span class="kw">OVER</span> (<span class="kw">ORDER</span> <span class="kw">BY</span> fecha) <span class="kw">AS</span> diferencia</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> por_dia;</span></code></pre></div>
+<p>En pandas:
+<code>df.groupby(&quot;categoria&quot;)[&quot;precio&quot;].rank(ascending=False), df[&quot;facturado&quot;].cumsum() y df[&quot;facturado&quot;].diff()</code></p>
 <h2 id="errores-típicos">Errores típicos</h2>
 <table>
 <colgroup>
@@ -603,6 +716,57 @@ BY</a></td>
 <td>Un porcentaje sobre el total</td>
 <td><code>100.0 * SUM(x) / (SELECT SUM(x) FROM tabla)</code></td>
 <td><a href="https://www.sqlitetutorial.net/sqlite-subquery/">Subconsultas</a></td>
+</tr>
+<tr>
+<td>Cambiar una casilla vacía por un valor</td>
+<td><code>COALESCE(columna, &#39;valor&#39;)</code></td>
+<td><a href="https://www.sqlite.org/lang_corefunc.html#coalesce">COALESCE</a></td>
+</tr>
+<tr>
+<td>Añadir una fila</td>
+<td><code>INSERT INTO tabla (a, b) VALUES (1, &#39;x&#39;)</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_insert.asp">INSERT</a></td>
+</tr>
+<tr>
+<td>Cambiar filas</td>
+<td><code>UPDATE tabla SET a = 1 WHERE ...</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_update.asp">UPDATE</a></td>
+</tr>
+<tr>
+<td>Borrar filas</td>
+<td><code>DELETE FROM tabla WHERE ...</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_delete.asp">DELETE</a></td>
+</tr>
+<tr>
+<td>Hacer una consulta en varios pasos</td>
+<td><code>WITH paso AS (...) SELECT ... FROM paso</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-cte/">WITH</a></td>
+</tr>
+<tr>
+<td>Poner un resultado debajo de otro</td>
+<td><code>UNION</code> o <code>UNION ALL</code></td>
+<td><a href="https://www.w3schools.com/sql/sql_union.asp">UNION</a></td>
+</tr>
+<tr>
+<td>El puesto de cada fila en un ranking</td>
+<td><code>RANK() OVER (ORDER BY x DESC)</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-window-functions/">Ventanas</a></td>
+</tr>
+<tr>
+<td>El primero de cada grupo</td>
+<td><code>RANK() OVER (PARTITION BY grupo ORDER BY x DESC)</code> y
+filtrar el puesto 1</td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-window-functions/">Ventanas</a></td>
+</tr>
+<tr>
+<td>Un acumulado</td>
+<td><code>SUM(x) OVER (ORDER BY fecha)</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-window-functions/">Ventanas</a></td>
+</tr>
+<tr>
+<td>Comparar con la fila anterior</td>
+<td><code>LAG(x) OVER (ORDER BY fecha)</code></td>
+<td><a href="https://www.sqlitetutorial.net/sqlite-window-functions/sqlite-lag/">LAG</a></td>
 </tr>
 <tr>
 <td>Ver lo que no tiene pareja en otra tabla</td>
