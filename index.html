@@ -89,13 +89,13 @@ a.btn-claro { text-decoration: none; display: inline-block; }
 
 /* pestañas */
 .pestanas { position: sticky; top: 0; z-index: 5; background: var(--superficie); border-bottom: 1px solid var(--borde); }
-.pestanas-in {
-  max-width: var(--ancho); margin: 0 auto; padding: 0 16px;
-  display: flex; gap: 2px; overflow-x: auto; scrollbar-width: thin;
-}
+.pestanas-in { max-width: var(--ancho); margin: 0 auto; padding: 0 16px; }
+.grupo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 2px; }
+.grupo + .grupo { border-top: 1px solid var(--borde); }
+.grupo-nombre { flex: none; width: 58px; padding-left: 8px; font-size: 12.5px; color: var(--tinta-suave); }
 .pestana {
   background: none; border: none; border-bottom: 3px solid transparent;
-  padding: 11px 8px 9px; color: var(--tinta-suave); white-space: nowrap; font-size: 14.5px;
+  padding: 8px 8px 6px; color: var(--tinta-suave); white-space: nowrap; font-size: 14.5px;
 }
 .pestana:hover { color: var(--tinta); }
 .pestana[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--cana-linea); font-weight: 600; }
@@ -106,7 +106,7 @@ a.btn-claro { text-decoration: none; display: inline-block; }
 /* cuerpo y panel de tablas */
 .cuerpo { max-width: var(--ancho); margin: 0 auto; display: grid; grid-template-columns: clamp(220px, 19vw, 260px) minmax(0, 1fr); align-items: start; }
 .panel {
-  position: sticky; top: 46px; max-height: calc(100vh - 46px); overflow-y: auto;
+  position: sticky; top: var(--alto-pestanas, 76px); max-height: calc(100vh - var(--alto-pestanas, 76px)); overflow-y: auto;
   border-right: 1px solid var(--borde); padding: 18px 12px 40px; font-size: 14px;
 }
 .plegable > summary { display: none; }
@@ -257,7 +257,9 @@ textarea:focus { outline: 2px solid var(--boton); outline-offset: 0; border-colo
   .atajo { display: none; }
   main { padding: 18px 16px 60px; }
   .cabecera-in { padding: 10px 16px; }
+  .pestanas { position: static; }
   .pestanas-in { padding: 0 8px; }
+  .grupo-nombre { width: 100%; padding: 6px 8px 0; }
   .rotulo { font-size: 22px; }
   .lema { font-size: 13px; }
   .acciones { width: 100%; flex-wrap: wrap; gap: 6px; }
@@ -951,7 +953,6 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
       document.getElementById("sec-" + k).classList.toggle("activo", activa);
     });
     guardar("pestana", id);
-    if (pestanas[id].scrollIntoView) pestanas[id].scrollIntoView({ block: "nearest", inline: "nearest" });
     if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
     window.scrollTo(0, 0);
   }
@@ -961,10 +962,18 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
     var main = document.getElementById("contenido");
     main.innerHTML = "";
     var todos = DATOS.bloques.concat([DATOS.mision], DATOS.extras);
+    // dos filas: lo de la primera clase y lo de la segunda
+    var grupos = [["Clase 1", "b0"], ["Clase 2", "extra"]];
+    var fila = null;
     todos.forEach(function (b) {
+      var g = grupos.filter(function (x) { return x[1] === b.id; })[0];
+      if (g || !fila) {
+        fila = el("div", { clase: "grupo", role: "presentation" }, [el("span", { clase: "grupo-nombre", texto: (g || grupos[0])[0] })]);
+        nav.appendChild(fila);
+      }
       var p = el("button", { clase: "pestana", role: "tab", type: "button", id: "tab-" + b.id, "aria-controls": "sec-" + b.id, onclick: function () { mostrar(b.id); } }, [b.pestana]);
       if (b.ejercicios || b.pasos) p.appendChild(el("span", { clase: "progreso", title: b.pasos ? "" : "Ejercicios resueltos" }));
-      nav.appendChild(p);
+      fila.appendChild(p);
       pestanas[b.id] = p;
       var seccion = b.pasos ? pintarMision(b) : pintarBloque(b);
       seccion.setAttribute("aria-labelledby", "tab-" + b.id);
@@ -978,6 +987,10 @@ const BD_BASE64 = "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAACgAAAD8AAAAAAAAAAAAAAAkAA
       } })
     ]));
     marcarCaso();
+    var barra = nav.parentNode;
+    function medirBarra() { document.documentElement.style.setProperty("--alto-pestanas", barra.offsetHeight + "px"); }
+    medirBarra();
+    window.addEventListener("resize", medirBarra);
     var inicial = (location.hash || "").slice(1);
     if (!pestanas[inicial]) inicial = leer("pestana");
     if (!pestanas[inicial]) inicial = todos[0].id;
